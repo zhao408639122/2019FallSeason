@@ -100,6 +100,7 @@ void ArrayList<T> ::output() {
     cout<<_Ele[Arr_len - 1];
 //    cout<<endl;
 }
+// 22.(1)
 template <class T>
 void ArrayList<T> ::reverse() {
     int n = Arr_len >> 1;
@@ -110,6 +111,10 @@ void ArrayList<T> ::reverse() {
         _Ele[Arr_len - i - 1] = a;
     }
 }
+// 22.(2)
+// 可以用程序步数计算只需在循环中加入 step++;
+
+// 22.(4)
 template <class T>
 void reverse(ArrayList<T> &A){//可以使用get实现，此处使用迭代器实现
     T a;
@@ -124,6 +129,11 @@ void reverse(ArrayList<T> &A){//可以使用get实现，此处使用迭代器实
         bg++;
     }
 }
+// 22.(5)
+// 时间复杂度为O(ListSize)，使用迭代器实现，常数方面比第一份代码更优
+// 空间复杂度为O(1)，除了迭代器和函数地址循环变量没有额外开销
+
+// 29.(1)
 template <class T>
 void ArrayList <T>::merge(ArrayList<T> a, ArrayList<T> b) {
     ArrayList<T> c = a, d = b;
@@ -135,6 +145,9 @@ void ArrayList <T>::merge(ArrayList<T> a, ArrayList<T> b) {
     for (int i = 0; i < c.size(); ++i)push_back(c._Ele[i]);
     for (int i = 0; i < d.size(); ++i)push_back(d._Ele[i]);
 }
+// 29.(2)
+// 时间复杂度为O(ListSizeA + ListSizeB)
+// 空间复杂度也为O(ListSizeA + ListSizeB)，事实上本题空间复杂度可以优化为O(1)。
 int main()
 {
     ArrayList<int> _L(1010), _B(1010);
