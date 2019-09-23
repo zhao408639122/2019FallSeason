@@ -1,9 +1,5 @@
 #include<cstdio>
-#include<iostream>
-#include<cstring>
-#include<string>
-#include <algorithm>
-
+#include <iostream>
 using namespace std;
 template <class T>
 class ArrayList{
@@ -12,15 +8,56 @@ protected:
     int Arr_len;
     int list_size;
 public:
+    class iterator;
+    iterator begin(){
+        return iterator(_Ele);
+    }
+    iterator end() {
+        return iterator(_Ele + Arr_len);
+    }
+    class iterator{
+    protected:
+        T* position;
+    public:
+        typedef bidirectional_iterator_tag iterator_category;
+        typedef T value_type;
+        typedef ptrdiff_t  difference_type;
+        typedef T* pointer;
+        typedef T& reference;
+        iterator(T* thePosition = nullptr){position = thePosition;}
+
+        T& operator*() const{return *position;}
+        T* operator->() const{return &*position;}
+        iterator &operator++(){
+            ++position;return *this;
+        }
+        iterator operator++(int){
+            iterator old = *this;
+            ++position;
+            return old;
+        }
+        iterator& operator--(){
+            --position; return *this;
+        }
+        iterator operator--(int){
+            iterator old = *this;
+            --position;
+            return old;
+        }
+    };
     ArrayList(int init_L = 10);
     ArrayList(const ArrayList<T>& );
+    void merge(ArrayList<T> a, ArrayList<T> b);
     void push_back(const T &x);
     void ch_sort();
-    void rank_sort();
-    void Bubble_sort();
-    void insert_sort();
     void output();
+    void reverse();
+    int size(){
+        return Arr_len;
+    }
+
 };
+
 template <class T>
 ArrayList<T> :: ArrayList(int init_L){
     list_size = init_L;
@@ -58,56 +95,49 @@ void ArrayList<T> ::ch_sort() {
     }
 }
 template <class T>
-void ArrayList<T> ::Bubble_sort() {
-    bool swapd = true;
-    for (int i = Arr_len; i > 1 && swapd; i--){
-        swapd = false;
-        for (int j = 0; j < i - 1; j++)
-            if (_Ele[j] > _Ele[j + 1]){
-                swap(_Ele[j], _Ele[j+1]);
-                swapd = 1;
-            }
-    }
-}
-template <class T>
-void ArrayList<T> ::insert_sort() {
-    for (int i = 1; i < Arr_len; ++i){
-        T t = _Ele[i];
-        int j;
-        for (j = i - 1; j >= 0 && t < _Ele[j]; --j)
-            _Ele[j + 1] = _Ele[j];
-        _Ele[j + 1] = t;
-    }
-}
-template <class T>
-void ArrayList<T> ::rank_sort() {
-    int *r;
-    r = new int[list_size];
-    memset(r, 0, list_size * 4);
-    for (int i = 0; i < Arr_len; ++i){
-        for (int j = i + 1; j < Arr_len; ++j){
-            if (_Ele[i] > _Ele[j])r[i]++;
-            else r[j]++;
-        }
-    }
-//    for (int i = 0; i < Arr_len; ++i)cout<<r[i]<<' '<<endl;
-    for (int i = 0; i < Arr_len; ++i){
-        while(r[i] != i){
-            swap(_Ele[i], _Ele[r[i]]);
-            swap(r[i], r[r[i]]);
-        }
-    }
-}
-template <class T>
 void ArrayList<T> ::output() {
     for (int i = 0; i < Arr_len - 1; ++i)cout<<_Ele[i]<<' ';
     cout<<_Ele[Arr_len - 1];
 //    cout<<endl;
 }
+template <class T>
+void ArrayList<T> ::reverse() {
+    int n = Arr_len >> 1;
+    T a;
+    for (int i = 0; i < n; ++i){//其实可以直接用swap
+        a = _Ele[i];
+        _Ele[i] = _Ele[Arr_len - i - 1];
+        _Ele[Arr_len - i - 1] = a;
+    }
+}
+template <class T>
+void reverse(ArrayList<T> &A){//可以使用get实现，此处使用迭代器实现
+    T a;
+    int n = A.size() >> 1;
+    typename ArrayList<T>::iterator bg = A.begin();
+    typename ArrayList<T>::iterator ed = A.end();
+    for (int i = 0; i < n; ++i){
+        a = *bg;
+        ed--;
+        *bg = *ed;
+        *ed = a;
+        bg++;
+    }
+}
+template <class T>
+void ArrayList <T>::merge(ArrayList<T> a, ArrayList<T> b) {
+    ArrayList<T> c = a, d = b;
+    int len = a.size() + b.size();
+    delete[] _Ele;
+    _Ele = new T[len];
+    Arr_len = 0;
+    list_size = len;
+    for (int i = 0; i < c.size(); ++i)push_back(c._Ele[i]);
+    for (int i = 0; i < d.size(); ++i)push_back(d._Ele[i]);
+}
 int main()
 {
-
-    ArrayList<int> _L(1010);
+    ArrayList<int> _L(1010), _B(1010);
     int n, a;
 //    int t[1010];
 //    ios::sync_with_stdio(false);
@@ -115,8 +145,14 @@ int main()
     for (int i = 1; i <= n; ++i){
         scanf("%d", &a);
         _L.push_back(a);
+    };
+    cin>>n;
+    for (int i = 1; i <= n; ++i){
+        scanf("%d", &a);
+        _B.push_back(a);
     }
-    _L.ch_sort();
-    _L.output();
+    _B.merge(_L, _B);
+//    _L.reverse();
+    _B.output();
     return 0;
 }
