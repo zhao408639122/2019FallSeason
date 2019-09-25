@@ -1,6 +1,14 @@
-#include<cstdio>
+#include <cstdio>
 #include <iostream>
+#include <string>
+
 using namespace std;
+struct node{
+    string name;
+    long long tele;
+    long long _class;
+    long long _domi;
+};
 template <class T>
 class ArrayList{
 protected:
@@ -45,19 +53,29 @@ public:
             return old;
         }
     };
+
     ArrayList(int init_L = 10);
-    ArrayList(const ArrayList<T>& );
-    void merge(ArrayList<T> a, ArrayList<T> b);
+    ArrayList(const ArrayList<T>&);
     void push_back(const T &x);
-    void ch_sort();
     void output();
-    void reverse();
+    int checkIndex(int x){
+        return x < Arr_len;
+    }
+    int del(int x){
+        if (!checkIndex(x)) return 0;
+        for (int i = x + 1; i < Arr_len; ++i)
+            _Ele[i - 1] = _Ele[i];
+        Arr_len--;
+        return 1;
+    }
+    T operator [](const int &t){return *(_Ele + t);}
     int size(){
         return Arr_len;
     }
-
+    void change(int x, T a){
+        _Ele[x] = a;
+    }
 };
-
 template <class T>
 ArrayList<T> :: ArrayList(int init_L){
     list_size = init_L;
@@ -83,89 +101,77 @@ void ArrayList<T> ::push_back(const T &x) {
     _Ele[Arr_len++] = x;
 }
 template <class T>
-void ArrayList<T> ::ch_sort() {
-    bool sorted = false;
-    for (int size = Arr_len; !sorted && (size > 1); size--){
-        int ind = 0;
-        sorted = true;
-        for (int i = 1; i < size; ++i)
-            if (_Ele[ind] <= _Ele[i]) ind = i;
-            else sorted = false;
-        swap(_Ele[ind], _Ele[size - 1]);
-    }
-}
-template <class T>
 void ArrayList<T> ::output() {
     for (int i = 0; i < Arr_len - 1; ++i)cout<<_Ele[i]<<' ';
     cout<<_Ele[Arr_len - 1];
 //    cout<<endl;
 }
-// 22.(1)
-template <class T>
-void ArrayList<T> ::reverse() {
-    int n = Arr_len >> 1;
-    T a;
-    for (int i = 0; i < n; ++i){//其实可以直接用swap
-        a = _Ele[i];
-        _Ele[i] = _Ele[Arr_len - i - 1];
-        _Ele[Arr_len - i - 1] = a;
-    }
+int del_name(ArrayList<node> &A, const string &t) {
+    int n = A.size(), _x = -1;
+    for (int i = 0; i < n; ++i)
+        if (A[i].name == t){
+            _x = i;
+            break;
+        }
+    if (_x == -1) return 0;
+    else return A.del(_x);
 }
-// 22.(2)
-// 可以用程序步数计算只需在循环中加入 step++;
-
-// 22.(4)
-template <class T>
-void reverse(ArrayList<T> &A){//可以使用get实现，此处使用迭代器实现
-    T a;
-    int n = A.size() >> 1;
-    typename ArrayList<T>::iterator bg = A.begin();
-    typename ArrayList<T>::iterator ed = A.end();
+void _modify(ArrayList<node> &A, const string &t, int x, long long val){
+    int n = A.size();
     for (int i = 0; i < n; ++i){
-        a = *bg;
-        ed--;
-        *bg = *ed;
-        *ed = a;
-        bg++;
+        if (A[i].name == t){
+            node a = A[i];
+            if (x == 1) a.tele = val;
+            else if (x == 2) a._class = val;
+            else a._domi = val;
+            A.change(i, a);
+            return;
+        }
     }
 }
-// 22.(5)
-// 时间复杂度为O(ListSize)，使用迭代器实现，常数方面比第一份代码更优
-// 空间复杂度为O(1)，除了迭代器和函数地址循环变量没有额外开销
-
-// 29.(1)
-template <class T>
-void ArrayList <T>::merge(ArrayList<T> a, ArrayList<T> b) {
-    ArrayList<T> c = a, d = b;
-    int len = a.size() + b.size();
-    delete[] _Ele;
-    _Ele = new T[len];
-    Arr_len = 0;
-    list_size = len;
-    for (int i = 0; i < c.size(); ++i)push_back(c._Ele[i]);
-    for (int i = 0; i < d.size(); ++i)push_back(d._Ele[i]);
+int _find(ArrayList<node> &A, const string &t){
+    int n = A.size();
+    for (int i = 0; i < n; ++i)
+        if (A[i].name == t) return 1;
+    return 0;
 }
-// 29.(2)
-// 时间复杂度为O(ListSizeA + ListSizeB)
-// 空间复杂度也为O(ListSizeA + ListSizeB)，事实上本题空间复杂度可以优化为O(1)。
+long long _class_xor(ArrayList<node> &A, const long long &val){
+    int n = A.size();
+    long long ans = 0;
+    for (int i = 0; i < n; ++i){
+        if (A[i]._class == val)
+            ans ^= A[i]._domi;
+    }
+    return ans;
+}
 int main()
 {
-    ArrayList<int> _L(1010), _B(1010);
+    ArrayList<node> _L(20010);
     int n, a;
-//    int t[1010];
-//    ios::sync_with_stdio(false);
+    string name;
+    long long _class, _domi, _tele;
+    ios::sync_with_stdio(false);
     cin>>n;
     for (int i = 1; i <= n; ++i){
-        scanf("%d", &a);
-        _L.push_back(a);
+        cin>>a;
+        if (a == 0){
+            cin>>name>>_tele>>_class>>_domi;
+            _L.push_back((node){name, _tele, _class, _domi});
+        } else if (a == 1){
+            cin>>name;
+            del_name(_L, name);
+        } else if (a == 2){
+            int x;
+            long long val;
+            cin>>name>>x>>val;
+            _modify(_L, name, x, val);
+        } else if (a == 3) {
+            cin>>name;
+            printf("%d\n", _find(_L, name));
+        } else {
+            cin>>_class;
+            printf("%lld\n", _class_xor(_L, _class));
+        }
     };
-    cin>>n;
-    for (int i = 1; i <= n; ++i){
-        scanf("%d", &a);
-        _B.push_back(a);
-    }
-    _B.merge(_L, _B);
-//    _L.reverse();
-    _B.output();
     return 0;
 }
