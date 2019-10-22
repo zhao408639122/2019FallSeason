@@ -56,7 +56,7 @@ T arrayQueue<T>::back() const{
 
 template<typename T>
 void arrayQueue<T>::pop(){
-    if (empyt()) throw out_of_range("queue is empty");
+    if (empty()) throw out_of_range("queue is empty");
     queueFront++;
     if (queueFront >= queueSize) queueFront -= queueSize;
     queue[queueFront].~T();
