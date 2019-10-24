@@ -22,7 +22,11 @@ public:
     void pop();
     void push(const T&);
     void clear();
-
+    void print(){
+        printf("%d\n", stackTop);
+        for (int i = 1; i <= stackTop; ++i) cout<<stack[i]<<' ';
+        cout<<endl;
+    }
     arrayStack<T>& operator=(const arrayStack<T>&);
 protected:
     T* stack;
@@ -138,17 +142,23 @@ int main(){
     while(T--){
         scanf("%s", s + 1);
         int res = suffixSwichy();
+        // printf("%d\n", res);
+        // for (int i = 1; i <= res; ++i){
+        //     printf("%d ", t[i]);
+        // }
+        // cout<<endl;
         for (int i = 1; i <= res; ++i){
             if (t[i] < 10){
-                int a = num.top(); num.pop();
-                int b = num.top(); num.pop();
+                double a = num.top(); num.pop();
+                double b = num.top(); num.pop();
                 if (t[i] == 1) num.push(a + b);
                 else if (t[i] == 2) num.push(b - a);
                 else if (t[i] == 3) num.push(b * a);
                 else num.push(b / a);
-            }
+            } else num.push(t[i] - 10);
         }
-        
+        printf("%.2f\n", num.top());
+        num.pop();
     }
 }
 // 1+2*3+(4*5+6)*7
