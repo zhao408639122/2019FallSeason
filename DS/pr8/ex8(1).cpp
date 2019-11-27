@@ -286,6 +286,7 @@ hashChain<K, E>::hashChain(int _divisor){
     dsize = 0;
 
     table = new chain<pair<const K, E> >[divisor];
+}
 template<typename K, typename E>
 pair<const K, E>* hashChain<K, E>::find(const K& key) const {
     int index = hash(key) % divisor;
