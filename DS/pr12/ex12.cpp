@@ -336,15 +336,18 @@ arrayQueue<T>& arrayQueue<T>::operator=(const arrayQueue<T>& q){
 
 template<typename T>
 class linkedGraph {
-    typedef pair<int, T> p;
 protected:
-    chain<p>* e;
+    chain<int>* e;
     bool* vis;
+    int *tmp, *tmp2;
     int n, m;
 public:
+    int te, te2;
     explicit linkedGraph(const int n) :n(n) {
-        e = new chain<p> [n + 1];
+        e = new chain<int> [n + 1];
         vis = new bool[n + 1];
+        tmp = new int[n + 1];
+        tmp2 = new int[n + 1];
         m = 0;
     }
     ~linkedGraph() {
@@ -352,67 +355,141 @@ public:
         delete[] vis;
     }
 
-    void add(int u, int v, const T& w) {
-        e[u].push_back(make_pair(v, w));
+    void add(int u, int v) {
+        e[u].push_back(v);
         ++m;
     }
     
     void erase(int u, int v) {
         auto i = 0;
-        for (auto it = e[u].begin(); it != e[u].end() && it ->first != v; ++it, ++i);
+        for (auto it = e[u].begin(); it != e[u].end() && *it != v; ++it, ++i);
         e[u].erase(i);
         --m;
     }
 
-    void bfs(int s) {
+    int bfs(int s, int t) 
+    {
+        memset(tmp2, 0, (n + 1) * 4);
+        tmp2[s] = 0;
         arrayQueue<int> q;
+        memset(vis, 0, n + 1);
         vis[s] = true;
+        
         q.push(s);
         while(!q.empty()) {
             auto u = q.front(); q.pop();
-            cout << u << ' ';
+            tmp[++te] = u;
             for (auto it = e[u].begin(); it != e[u].end(); ++it) {
-                auto v = it ->first;
+                auto v = *it;
                 if (!vis[v]) {
+                    tmp2[v] = tmp2[u] + 1;
                     q.push(v);
                     vis[v] = true;
                 }
             }
         }
-        cout<<endl;
+        return tmp2[t] ? tmp2[t] : -1;
     }
     void dfs(int u) {
-        cout << u << endl;
+        tmp[++te] = u;
         vis[u] = true;
         for (auto it = e[u].begin(); it != e[u].end(); ++it) {
-            auto v = it ->first;
+            auto v = *it;
             if (!vis[v]) dfs(v);
         }
     }
-    int dis(int s, int t) const {
-        T* dis = new T[n + 1];
-        int* vis = new int[n + 1];
-        memset(vis, 0, n * 4);
-        for (auto i = 1; i <= n; ++i) dis[i] = 0x3f3f3f3f;
-        arrayQueue<int> q;
-        q.push(s); 
-        dis[s] = 0;
-        while(!q.empty()) {
-            int u = q.front();
-            for (auto it = e[u].begin(); it != e[u].end(); ++i) {
-                int v = it ->first;
-                T& w = it ->second;
-                if (dis[u] + w < dis[v]){
-                    dis[v] = dis[u] + w;
-                    if (!vis[v]){
-                        vis[v] = 1;
-                        q.push(v);
-                    }
-                } 
-            }
+    void print(){
+        for (int i = 1; i <= te; ++i)
+            printf("%d ", tmp[i]);
+        printf("\n");
+    }
+    void print2(){
+        for (int i = 1; i <= te2; ++i)
+            printf("%d ", tmp2[i]);
+        printf("\n");
+    }
+    int scc(){
+        int res = 0;
+        memset(vis, 0, n + 1);
+        for (int i = 1; i <= n; ++i){
+            if (!vis[i]) tmp2[++res] = i, dfs(i);
         }
-        auto ans = dis[t];
-        delete[] dis;
-        return ans;
+        te2 = res;
+        return res;
+    }
+    void solve(int u){
+        int p = e[u].size();
+        int *node = new int[p + 1];
+        int i = 1;
+        for (auto it = e[u].begin(); it != e[u].end(); ++it, ++i){
+            node[i] = *it;
+        }
+        sort(node + 1, node + p + 1);
+        i = 1;
+        for (auto it = e[u].begin(); it != e[u].end(); ++it, ++i){
+            *it = node[i];
+        }
+    }
+    void presolve(){
+        for (int i = 1; i <= n; ++i) solve(i);
+    }   
+    void re_Vis(){
+        memset(vis, 0, n + 1);
     }
 };
+
+int main(){
+    int n, m, s, t, op, u, v;
+    cin>>n>>m>>s>>t;
+    linkedGraph<int> G(n);
+    for (int i = 1; i <= m; ++i){
+        scanf("%d%d%d", &op, &u, &v);
+        if (op & 1) G.erase(u, v), G.erase(v, u);
+        else G.add(u, v), G.add(v, u);
+    }
+    G.presolve();
+
+    G.te = G.te2 = 0;
+    int scc = G.scc();
+    printf("%d\n", scc);
+    G.print2();  
+
+    G.re_Vis();
+    G.te = G.te2 = 0;
+    G.dfs(s);
+    printf("%d\n", G.te);
+    G.print();
+
+    G.te = 0;
+    int ans = G.bfs(t, s);
+    printf("%d\n", G.te);
+    G.print();
+    printf("%d\n", ans);
+    // system("pause");
+    
+}
+
+/*
+10 20 4 5
+0 6 4
+0 10 3
+0 4 8
+0 4 10
+1 4 10
+0 2 1
+0 5 8
+0 5 2
+0 10 7
+0 9 6
+0 9 1
+0 7 1
+0 8 10
+0 7 5
+0 8 3
+0 6 7
+1 6 4
+1 8 3
+0 7 8
+0 9 2
+
+*/ 
