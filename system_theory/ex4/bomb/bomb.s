@@ -44,7 +44,7 @@ node4:
 	.word	997
 	.word	4
 	.word	node5
-	.globl	node3
+	.globl	node3	
 	.align	2
 	.type	node3, @object
 	.size	node3, 12
